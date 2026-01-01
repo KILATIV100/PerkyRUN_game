@@ -1,0 +1,1834 @@
+<!DOCTYPE html>
+
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PerkUP Runner - Бровари</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Exo+2:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+```
+    :root {
+        --primary: #FF6B35;
+        --primary-dark: #E55A2B;
+        --secondary: #4ECDC4;
+        --accent: #FFE66D;
+        --coffee: #6F4E37;
+        --coffee-light: #A67C52;
+        --dark: #1A1A2E;
+        --darker: #0F0F1A;
+        --light: #EAEAEA;
+    }
+
+    html, body {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: 'Exo 2', sans-serif;
+        background: var(--darker);
+        color: var(--light);
+    }
+
+    /* ===== ГОЛОВНЕ МЕНЮ ===== */
+    #main-menu {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(180deg, #1A1A2E 0%, #0F0F1A 50%, #1A0A1A 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        overflow: hidden;
+    }
+
+    .menu-bg-animation {
+        position: absolute;
+        inset: 0;
+        overflow: hidden;
+        pointer-events: none;
+    }
+
+    .floating-bean {
+        position: absolute;
+        font-size: 2rem;
+        opacity: 0.3;
+        animation: floatBean 15s infinite ease-in-out;
+    }
+
+    @keyframes floatBean {
+        0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+        10% { opacity: 0.3; }
+        90% { opacity: 0.3; }
+        100% { transform: translateY(-100px) rotate(360deg); opacity: 0; }
+    }
+
+    .menu-logo {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 900;
+        text-align: center;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 50%, var(--secondary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: logoGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes logoGlow {
+        0% { filter: drop-shadow(0 0 10px rgba(255, 107, 53, 0.5)); }
+        100% { filter: drop-shadow(0 0 25px rgba(255, 107, 53, 0.8)); }
+    }
+
+    .menu-subtitle {
+        font-size: 1rem;
+        color: var(--secondary);
+        margin-bottom: 1.5rem;
+        letter-spacing: 3px;
+    }
+
+    .robot-preview {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 1.5rem;
+        animation: robotBounce 2s ease-in-out infinite;
+    }
+
+    @keyframes robotBounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-15px); }
+    }
+
+    .menu-stats {
+        display: flex;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .stat-item { text-align: center; }
+
+    .stat-value {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .stat-label {
+        font-size: 0.7rem;
+        color: var(--light);
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .menu-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        width: 80%;
+        max-width: 280px;
+    }
+
+    .menu-btn {
+        padding: 0.9rem 1.5rem;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1rem;
+        font-weight: 700;
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .menu-btn:active { transform: scale(0.95); }
+
+    .btn-play {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        color: white;
+        box-shadow: 0 5px 20px rgba(255, 107, 53, 0.4);
+    }
+
+    .btn-shop {
+        background: linear-gradient(135deg, var(--coffee) 0%, var(--coffee-light) 100%);
+        color: white;
+    }
+
+    .btn-leaderboard {
+        background: linear-gradient(135deg, var(--secondary) 0%, #3BA99C 100%);
+        color: var(--dark);
+    }
+
+    /* ===== ІГРОВИЙ ЕКРАН ===== */
+    #game-container {
+        position: fixed;
+        inset: 0;
+        display: none;
+        overflow: hidden;
+        perspective: 800px;
+    }
+
+    .sky {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 45%;
+        background: linear-gradient(180deg, #1a1a3e 0%, #4a4a7a 50%, #dab0ca 100%);
+        overflow: hidden;
+    }
+
+    .city-silhouette {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 200%;
+        height: 120px;
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 120'%3E%3Cpath fill='%231a1a2e' d='M0,120 L0,80 L30,80 L30,50 L50,50 L50,80 L80,80 L80,30 L100,30 L100,20 L120,20 L120,30 L140,30 L140,80 L170,80 L170,60 L200,60 L200,80 L230,80 L230,40 L250,40 L250,15 L270,15 L270,40 L290,40 L290,80 L320,80 L320,70 L350,70 L350,80 L380,80 L380,35 L400,35 L400,20 L420,20 L420,35 L440,35 L440,80 L470,80 L470,75 L500,75 L500,80 L530,80 L530,45 L560,45 L560,80 L590,80 L590,25 L610,25 L610,10 L630,10 L630,25 L650,25 L650,80 L680,80 L680,65 L710,65 L710,80 L740,80 L740,50 L770,50 L770,80 L800,80 L800,40 L820,40 L820,25 L840,25 L840,40 L860,40 L860,80 L890,80 L890,70 L920,70 L920,80 L950,80 L950,30 L980,30 L980,80 L1010,80 L1010,55 L1040,55 L1040,80 L1070,80 L1070,45 L1090,45 L1090,30 L1110,30 L1110,45 L1130,45 L1130,80 L1160,80 L1160,70 L1200,70 L1200,120 Z'/%3E%3C/svg%3E") repeat-x;
+        background-size: 600px 120px;
+        animation: cityMove 20s linear infinite;
+    }
+
+    @keyframes cityMove {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-600px); }
+    }
+
+    .road-container {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 55%;
+        overflow: hidden;
+    }
+
+    .road {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 350%;
+        height: 160%;
+        background: linear-gradient(180deg, #2a2a2a 0%, #3a3a3a 50%, #4a4a4a 100%);
+        transform: translateX(-50%) rotateX(65deg);
+        transform-origin: bottom center;
+    }
+
+    .road-lines {
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 350%;
+        height: 160%;
+        transform: translateX(-50%) rotateX(65deg);
+        transform-origin: bottom center;
+    }
+
+    .lane-divider {
+        position: absolute;
+        width: 8px;
+        height: 100%;
+        background: repeating-linear-gradient(to bottom, #FFE66D 0px, #FFE66D 40px, transparent 40px, transparent 80px);
+        animation: laneMove 0.4s linear infinite;
+    }
+
+    .lane-divider.left { left: 33.33%; transform: translateX(-50%); }
+    .lane-divider.right { left: 66.66%; transform: translateX(-50%); }
+
+    @keyframes laneMove {
+        0% { background-position: 0 0; }
+        100% { background-position: 0 80px; }
+    }
+
+    /* ===== ГРАВЕЦЬ ===== */
+    #player {
+        position: absolute;
+        bottom: 18%;
+        left: 50%;
+        width: 60px;
+        height: 90px;
+        transform: translateX(-50%);
+        transition: left 0.12s ease-out;
+        z-index: 100;
+    }
+
+    #player.lane-0 { left: 22%; }
+    #player.lane-1 { left: 50%; }
+    #player.lane-2 { left: 78%; }
+
+    #player.jumping { animation: playerJump 0.5s ease-out; }
+    #player.sliding { animation: playerSlide 0.5s ease-out; }
+
+    @keyframes playerJump {
+        0% { transform: translateX(-50%) translateY(0); }
+        50% { transform: translateX(-50%) translateY(-100px); }
+        100% { transform: translateX(-50%) translateY(0); }
+    }
+
+    @keyframes playerSlide {
+        0%, 100% { transform: translateX(-50%) scaleY(1); }
+        20%, 80% { transform: translateX(-50%) scaleY(0.4) translateY(25px); }
+    }
+
+    .robot-body { width: 100%; height: 100%; position: relative; }
+
+    .robot-head {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 45px;
+        height: 40px;
+        background: linear-gradient(180deg, #E8E8E8 0%, #B0B0B0 100%);
+        border-radius: 12px 12px 8px 8px;
+        border: 3px solid var(--primary);
+    }
+
+    .robot-eye {
+        position: absolute;
+        top: 12px;
+        width: 10px;
+        height: 10px;
+        background: #00FFFF;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #00FFFF;
+    }
+
+    .robot-eye.left { left: 8px; }
+    .robot-eye.right { right: 8px; }
+
+    .robot-antenna {
+        position: absolute;
+        top: -12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 12px;
+        background: var(--primary);
+    }
+
+    .robot-antenna::after {
+        content: '';
+        position: absolute;
+        top: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 8px;
+        height: 8px;
+        background: var(--accent);
+        border-radius: 50%;
+        animation: antennaGlow 1s infinite alternate;
+    }
+
+    @keyframes antennaGlow {
+        0% { box-shadow: 0 0 5px var(--accent); }
+        100% { box-shadow: 0 0 15px var(--accent); }
+    }
+
+    .robot-torso {
+        position: absolute;
+        top: 38px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 35px;
+        background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
+        border-radius: 8px;
+    }
+
+    .robot-torso::before {
+        content: '☕';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 18px;
+    }
+
+    .robot-arm {
+        position: absolute;
+        top: 40px;
+        width: 10px;
+        height: 30px;
+        background: linear-gradient(180deg, #C0C0C0 0%, #909090 100%);
+        border-radius: 5px;
+        animation: armSwing 0.25s ease-in-out infinite alternate;
+    }
+
+    .robot-arm.left { left: 3px; }
+    .robot-arm.right { right: 3px; animation-delay: 0.125s; }
+
+    @keyframes armSwing {
+        0% { transform: rotate(-12deg); }
+        100% { transform: rotate(12deg); }
+    }
+
+    .robot-leg {
+        position: absolute;
+        bottom: 0;
+        width: 12px;
+        height: 20px;
+        background: linear-gradient(180deg, #404040 0%, #252525 100%);
+        border-radius: 4px;
+        animation: legRun 0.15s ease-in-out infinite alternate;
+    }
+
+    .robot-leg.left { left: 15px; }
+    .robot-leg.right { right: 15px; animation-delay: 0.075s; }
+
+    @keyframes legRun {
+        0% { transform: translateY(0); }
+        100% { transform: translateY(-4px); }
+    }
+
+    /* ===== ПЕРЕШКОДИ ===== */
+    .obstacle {
+        position: absolute;
+        bottom: 18%;
+        transform: translateX(-50%);
+        z-index: 50;
+        animation: obstacleMove 1.2s linear forwards;
+    }
+
+    .obstacle.lane-0 { left: 22%; }
+    .obstacle.lane-1 { left: 50%; }
+    .obstacle.lane-2 { left: 78%; }
+
+    @keyframes obstacleMove {
+        0% { bottom: 85%; transform: translateX(-50%) scale(0.15); opacity: 0.3; }
+        20% { opacity: 1; }
+        100% { bottom: -5%; transform: translateX(-50%) scale(1.4); }
+    }
+
+    .car { width: 55px; height: 80px; }
+
+    .car-body {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, #E74C3C 0%, #C0392B 100%);
+        border-radius: 12px 12px 5px 5px;
+        position: relative;
+        box-shadow: inset 0 -15px 25px rgba(0,0,0,0.3);
+    }
+
+    .car-window {
+        position: absolute;
+        top: 12px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 22px;
+        background: linear-gradient(180deg, #5DADE2 0%, #3498DB 100%);
+        border-radius: 6px 6px 3px 3px;
+    }
+
+    .car-light {
+        position: absolute;
+        bottom: 8px;
+        width: 8px;
+        height: 8px;
+        background: #F1C40F;
+        border-radius: 50%;
+        box-shadow: 0 0 8px #F1C40F;
+    }
+
+    .car-light.left { left: 6px; }
+    .car-light.right { right: 6px; }
+
+    .coffee-cup-obstacle { width: 45px; height: 55px; }
+
+    .cup-body {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(180deg, #8B4513 0%, #5D3A1A 100%);
+        border-radius: 5px 5px 12px 12px;
+        position: relative;
+    }
+
+    .cup-steam {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 1.2rem;
+        opacity: 0.6;
+        animation: steamRise 0.8s infinite;
+    }
+
+    @keyframes steamRise {
+        0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.6; }
+        50% { transform: translateX(-50%) translateY(-8px); opacity: 0.3; }
+    }
+
+    .barrier { width: 65px; height: 28px; }
+
+    .barrier-body {
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(45deg, #F1C40F, #F1C40F 8px, #2C3E50 8px, #2C3E50 16px);
+        border-radius: 4px;
+    }
+
+    /* ===== КОЛЕКЦІЙНІ ПРЕДМЕТИ ===== */
+    .collectible {
+        position: absolute;
+        bottom: 18%;
+        transform: translateX(-50%);
+        z-index: 40;
+        animation: collectibleMove 1.2s linear forwards;
+    }
+
+    .collectible.lane-0 { left: 22%; }
+    .collectible.lane-1 { left: 50%; }
+    .collectible.lane-2 { left: 78%; }
+
+    @keyframes collectibleMove {
+        0% { bottom: 85%; transform: translateX(-50%) scale(0.2); opacity: 0.3; }
+        20% { opacity: 1; }
+        100% { bottom: 3%; transform: translateX(-50%) scale(1); }
+    }
+
+    .coin {
+        width: 32px;
+        height: 32px;
+        background: radial-gradient(circle at 30% 30%, #FFD700 0%, #FFA500 60%, #FF8C00 100%);
+        border-radius: 50%;
+        border: 3px solid #DAA520;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #8B4513;
+        font-size: 1.1rem;
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        animation: coinSpin 0.8s linear infinite;
+    }
+
+    @keyframes coinSpin {
+        0% { transform: translateX(-50%) rotateY(0deg); }
+        100% { transform: translateX(-50%) rotateY(360deg); }
+    }
+
+    .coffee-bean {
+        width: 28px;
+        height: 36px;
+        background: radial-gradient(ellipse at 30% 30%, #8B4513 0%, #5D3A1A 60%, #3E2723 100%);
+        border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+        position: relative;
+        box-shadow: 0 0 12px rgba(139, 69, 19, 0.6);
+        animation: beanFloat 0.4s ease-in-out infinite alternate;
+    }
+
+    .coffee-bean::before {
+        content: '';
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 3px;
+        height: 55%;
+        background: #2C1810;
+        border-radius: 2px;
+    }
+
+    @keyframes beanFloat {
+        0% { transform: translateX(-50%) translateY(0) rotate(-4deg); }
+        100% { transform: translateX(-50%) translateY(-4px) rotate(4deg); }
+    }
+
+    /* ===== HUD ===== */
+    #game-hud {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        padding: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        z-index: 200;
+        background: linear-gradient(180deg, rgba(0,0,0,0.6) 0%, transparent 100%);
+    }
+
+    .hud-left, .hud-right {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .hud-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 6px 10px;
+        border-radius: 20px;
+        backdrop-filter: blur(5px);
+    }
+
+    .hud-icon { font-size: 1rem; }
+
+    .hud-value {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .hud-score .hud-value { color: var(--light); }
+
+    .hud-multiplier {
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        color: var(--dark);
+        font-weight: 900;
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-family: 'Orbitron', sans-serif;
+    }
+
+    #pause-btn {
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 0, 0, 0.5);
+        border: 2px solid var(--primary);
+        border-radius: 50%;
+        color: var(--light);
+        font-size: 1.3rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+
+    #pause-btn:active { transform: scale(0.9); background: var(--primary); }
+
+    /* ===== ЕФЕКТ ЗБОРУ ===== */
+    .collect-effect {
+        position: fixed;
+        pointer-events: none;
+        font-size: 1.3rem;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        animation: collectPop 0.6s ease-out forwards;
+        z-index: 300;
+    }
+
+    .collect-effect.coin { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
+    .collect-effect.bean { color: var(--coffee-light); text-shadow: 0 0 10px var(--coffee); }
+
+    @keyframes collectPop {
+        0% { transform: translateY(0) scale(1); opacity: 1; }
+        100% { transform: translateY(-40px) scale(1.4); opacity: 0; }
+    }
+
+    /* ===== GAME OVER ===== */
+    #game-over {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 15, 26, 0.95);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 500;
+        backdrop-filter: blur(10px);
+    }
+
+    .game-over-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--primary);
+        margin-bottom: 1rem;
+        text-shadow: 0 0 30px var(--primary);
+        animation: gameOverPulse 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes gameOverPulse {
+        0% { transform: scale(1); }
+        100% { transform: scale(1.05); }
+    }
+
+    .game-over-stats {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+
+    .game-over-stat { margin-bottom: 0.8rem; }
+    .game-over-stat:last-child { margin-bottom: 0; }
+
+    .game-over-stat-label {
+        font-size: 0.75rem;
+        color: var(--light);
+        opacity: 0.7;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .game-over-stat-value {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .game-over-stat-value.new-record {
+        color: var(--secondary);
+        animation: newRecord 0.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes newRecord {
+        0% { text-shadow: 0 0 10px var(--secondary); }
+        100% { text-shadow: 0 0 25px var(--secondary); }
+    }
+
+    .new-record-badge {
+        display: inline-block;
+        background: var(--secondary);
+        color: var(--dark);
+        padding: 2px 8px;
+        border-radius: 8px;
+        font-size: 0.6rem;
+        font-weight: 700;
+        margin-left: 8px;
+    }
+
+    .game-over-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        width: 80%;
+        max-width: 260px;
+    }
+
+    /* ===== ПАУЗА ===== */
+    #pause-screen {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 15, 26, 0.9);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 450;
+        backdrop-filter: blur(10px);
+    }
+
+    .pause-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.2rem;
+        font-weight: 900;
+        color: var(--accent);
+        margin-bottom: 1.5rem;
+    }
+
+    .pause-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        width: 80%;
+        max-width: 260px;
+    }
+
+    /* ===== МАГАЗИН ===== */
+    #shop-screen {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(180deg, #1A1A2E 0%, #0F0F1A 100%);
+        display: none;
+        flex-direction: column;
+        z-index: 400;
+        overflow-y: auto;
+    }
+
+    .shop-header {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(0, 0, 0, 0.3);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .shop-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    .shop-balance {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(255, 215, 0, 0.2);
+        padding: 6px 12px;
+        border-radius: 16px;
+    }
+
+    .shop-balance-icon { font-size: 1rem; }
+
+    .shop-balance-value {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        color: var(--accent);
+    }
+
+    #shop-close {
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 50%;
+        color: var(--light);
+        font-size: 1.3rem;
+        cursor: pointer;
+    }
+
+    .shop-section { padding: 15px; }
+
+    .shop-section-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1rem;
+        color: var(--secondary);
+        margin-bottom: 12px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .shop-items {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+
+    .shop-item {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 12px;
+        text-align: center;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .shop-item:active { transform: scale(0.95); }
+    .shop-item.selected { border-color: var(--secondary); background: rgba(78, 205, 196, 0.1); }
+    .shop-item.locked { opacity: 0.5; }
+
+    .shop-item-preview {
+        width: 50px;
+        height: 70px;
+        margin: 0 auto 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .shop-item-name { font-weight: 600; margin-bottom: 4px; font-size: 0.85rem; }
+
+    .shop-item-price {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.8rem;
+        color: var(--accent);
+    }
+
+    .shop-item-owned { color: var(--secondary); font-size: 0.75rem; }
+
+    /* ===== ЛІДЕРБОРД ===== */
+    #leaderboard-screen {
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(180deg, #1A1A2E 0%, #0F0F1A 100%);
+        display: none;
+        flex-direction: column;
+        z-index: 400;
+        overflow-y: auto;
+    }
+
+    .leaderboard-header {
+        padding: 15px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(0, 0, 0, 0.3);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .leaderboard-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--secondary);
+    }
+
+    #leaderboard-close {
+        width: 36px;
+        height: 36px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 50%;
+        color: var(--light);
+        font-size: 1.3rem;
+        cursor: pointer;
+    }
+
+    .leaderboard-list { padding: 15px; }
+
+    .leaderboard-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 12px;
+        margin-bottom: 8px;
+    }
+
+    .leaderboard-item.current-user {
+        background: rgba(78, 205, 196, 0.2);
+        border: 2px solid var(--secondary);
+    }
+
+    .leaderboard-rank {
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 700;
+        font-size: 1rem;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .leaderboard-rank.gold { background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); color: #8B4513; }
+    .leaderboard-rank.silver { background: linear-gradient(135deg, #C0C0C0 0%, #A0A0A0 100%); color: #505050; }
+    .leaderboard-rank.bronze { background: linear-gradient(135deg, #CD7F32 0%, #A0522D 100%); color: #3E2723; }
+
+    .leaderboard-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+    }
+
+    .leaderboard-info { flex: 1; }
+    .leaderboard-name { font-weight: 600; margin-bottom: 2px; font-size: 0.9rem; }
+
+    .leaderboard-score {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 0.85rem;
+        color: var(--accent);
+    }
+
+    /* ===== ТУТОРІАЛ ===== */
+    #tutorial-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 15, 26, 0.95);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 600;
+        padding: 20px;
+    }
+
+    .tutorial-content { text-align: center; max-width: 300px; }
+
+    .tutorial-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-bottom: 1.5rem;
+    }
+
+    .tutorial-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 1.2rem;
+        text-align: left;
+    }
+
+    .tutorial-icon {
+        width: 50px;
+        height: 50px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        flex-shrink: 0;
+    }
+
+    .tutorial-text { font-size: 0.9rem; line-height: 1.3; }
+    .tutorial-text strong { color: var(--secondary); }
+
+    #tutorial-start { margin-top: 1rem; }
+</style>
+```
+
+</head>
+<body>
+    <!-- Головне меню -->
+    <div id="main-menu">
+        <div class="menu-bg-animation">
+            <div class="floating-bean" style="left: 10%; animation-delay: 0s;">☕</div>
+            <div class="floating-bean" style="left: 30%; animation-delay: 3s;">🫘</div>
+            <div class="floating-bean" style="left: 50%; animation-delay: 6s;">☕</div>
+            <div class="floating-bean" style="left: 70%; animation-delay: 9s;">🫘</div>
+            <div class="floating-bean" style="left: 90%; animation-delay: 12s;">☕</div>
+        </div>
+
+```
+    <h1 class="menu-logo">PERKUP RUNNER</h1>
+    <p class="menu-subtitle">🏃 БРОВАРИ 🏃</p>
+    
+    <div class="robot-preview">
+        <svg viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
+            <rect x="46" y="5" width="8" height="15" fill="#FF6B35"/>
+            <circle cx="50" cy="5" r="8" fill="#FFE66D">
+                <animate attributeName="opacity" values="1;0.5;1" dur="1s" repeatCount="indefinite"/>
+            </circle>
+            <rect x="20" y="20" width="60" height="45" rx="15" fill="url(#headGrad)" stroke="#FF6B35" stroke-width="3"/>
+            <circle cx="35" cy="42" r="8" fill="#00FFFF">
+                <animate attributeName="r" values="8;6;8" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="65" cy="42" r="8" fill="#00FFFF">
+                <animate attributeName="r" values="8;6;8" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <rect x="25" y="68" width="50" height="40" rx="10" fill="url(#bodyGrad)"/>
+            <text x="50" y="95" text-anchor="middle" font-size="24">☕</text>
+            <rect x="10" y="70" width="12" height="35" rx="6" fill="#C0C0C0">
+                <animateTransform attributeName="transform" type="rotate" values="-10 16 70;10 16 70;-10 16 70" dur="0.5s" repeatCount="indefinite"/>
+            </rect>
+            <rect x="78" y="70" width="12" height="35" rx="6" fill="#C0C0C0">
+                <animateTransform attributeName="transform" type="rotate" values="10 84 70;-10 84 70;10 84 70" dur="0.5s" repeatCount="indefinite"/>
+            </rect>
+            <rect x="30" y="108" width="15" height="22" rx="5" fill="#404040">
+                <animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="0.3s" repeatCount="indefinite"/>
+            </rect>
+            <rect x="55" y="108" width="15" height="22" rx="5" fill="#404040">
+                <animateTransform attributeName="transform" type="translate" values="0,-5;0,0;0,-5" dur="0.3s" repeatCount="indefinite"/>
+            </rect>
+            <defs>
+                <linearGradient id="headGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#E8E8E8"/>
+                    <stop offset="100%" style="stop-color:#B0B0B0"/>
+                </linearGradient>
+                <linearGradient id="bodyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" style="stop-color:#FF6B35"/>
+                    <stop offset="100%" style="stop-color:#E55A2B"/>
+                </linearGradient>
+            </defs>
+        </svg>
+    </div>
+    
+    <div class="menu-stats">
+        <div class="stat-item">
+            <div class="stat-value" id="menu-coins">0</div>
+            <div class="stat-label">Монети</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="menu-beans">0</div>
+            <div class="stat-label">Зерна</div>
+        </div>
+        <div class="stat-item">
+            <div class="stat-value" id="menu-highscore">0</div>
+            <div class="stat-label">Рекорд</div>
+        </div>
+    </div>
+    
+    <div class="menu-buttons">
+        <button class="menu-btn btn-play" id="play-btn">▶ ГРАТИ</button>
+        <button class="menu-btn btn-shop" id="shop-btn">🛒 МАГАЗИН</button>
+        <button class="menu-btn btn-leaderboard" id="leaderboard-btn">🏆 ЛІДЕРИ</button>
+    </div>
+</div>
+
+<!-- Ігровий контейнер -->
+<div id="game-container">
+    <div class="sky">
+        <div class="city-silhouette"></div>
+    </div>
+    <div class="road-container">
+        <div class="road"></div>
+        <div class="road-lines">
+            <div class="lane-divider left"></div>
+            <div class="lane-divider right"></div>
+        </div>
+    </div>
+    <div id="game-area">
+        <div id="player" class="lane-1">
+            <div class="robot-body">
+                <div class="robot-head">
+                    <div class="robot-antenna"></div>
+                    <div class="robot-eye left"></div>
+                    <div class="robot-eye right"></div>
+                </div>
+                <div class="robot-torso"></div>
+                <div class="robot-arm left"></div>
+                <div class="robot-arm right"></div>
+                <div class="robot-leg left"></div>
+                <div class="robot-leg right"></div>
+            </div>
+        </div>
+    </div>
+    <div id="game-hud">
+        <div class="hud-left">
+            <div class="hud-item hud-score">
+                <span class="hud-icon">🏃</span>
+                <span class="hud-value" id="hud-score">0</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-icon">🪙</span>
+                <span class="hud-value" id="hud-coins">0</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-icon">🫘</span>
+                <span class="hud-value" id="hud-beans">0</span>
+            </div>
+        </div>
+        <div class="hud-right">
+            <button id="pause-btn">⏸</button>
+            <div class="hud-multiplier" id="hud-multiplier">x1</div>
+        </div>
+    </div>
+</div>
+
+<!-- Пауза -->
+<div id="pause-screen">
+    <h2 class="pause-title">⏸ ПАУЗА</h2>
+    <div class="pause-buttons">
+        <button class="menu-btn btn-play" id="resume-btn">▶ ПРОДОВЖИТИ</button>
+        <button class="menu-btn btn-shop" id="pause-menu-btn">🏠 МЕНЮ</button>
+    </div>
+</div>
+
+<!-- Game Over -->
+<div id="game-over">
+    <h2 class="game-over-title">GAME OVER</h2>
+    <div class="game-over-stats">
+        <div class="game-over-stat">
+            <div class="game-over-stat-label">Дистанція</div>
+            <div class="game-over-stat-value" id="go-score">0</div>
+        </div>
+        <div class="game-over-stat">
+            <div class="game-over-stat-label">Монети</div>
+            <div class="game-over-stat-value" id="go-coins">0</div>
+        </div>
+        <div class="game-over-stat">
+            <div class="game-over-stat-label">Кавові зерна</div>
+            <div class="game-over-stat-value" id="go-beans">0</div>
+        </div>
+        <div class="game-over-stat">
+            <div class="game-over-stat-label">Найкращий</div>
+            <div class="game-over-stat-value" id="go-highscore">0</div>
+        </div>
+    </div>
+    <div class="game-over-buttons">
+        <button class="menu-btn btn-play" id="retry-btn">🔄 ЩЕ РАЗ</button>
+        <button class="menu-btn btn-leaderboard" id="go-menu-btn">🏠 МЕНЮ</button>
+    </div>
+</div>
+
+<!-- Магазин -->
+<div id="shop-screen">
+    <div class="shop-header">
+        <h2 class="shop-title">🛒 Магазин</h2>
+        <div class="shop-balance">
+            <span class="shop-balance-icon">🪙</span>
+            <span class="shop-balance-value" id="shop-coins">0</span>
+        </div>
+        <button id="shop-close">✕</button>
+    </div>
+    <div class="shop-section">
+        <h3 class="shop-section-title">🤖 Персонажі</h3>
+        <div class="shop-items" id="shop-characters"></div>
+    </div>
+    <div class="shop-section">
+        <h3 class="shop-section-title">🎨 Скіни</h3>
+        <div class="shop-items" id="shop-skins"></div>
+    </div>
+</div>
+
+<!-- Лідерборд -->
+<div id="leaderboard-screen">
+    <div class="leaderboard-header">
+        <h2 class="leaderboard-title">🏆 Лідери</h2>
+        <button id="leaderboard-close">✕</button>
+    </div>
+    <div class="leaderboard-list" id="leaderboard-list"></div>
+</div>
+
+<!-- Туторіал -->
+<div id="tutorial-overlay">
+    <div class="tutorial-content">
+        <h2 class="tutorial-title">🎮 Як грати?</h2>
+        <div class="tutorial-item">
+            <div class="tutorial-icon">👈👉</div>
+            <div class="tutorial-text"><strong>Свайп вліво/вправо</strong><br>Змінюй смугу руху</div>
+        </div>
+        <div class="tutorial-item">
+            <div class="tutorial-icon">👆</div>
+            <div class="tutorial-text"><strong>Свайп вгору</strong><br>Стрибай через перешкоди</div>
+        </div>
+        <div class="tutorial-item">
+            <div class="tutorial-icon">👇</div>
+            <div class="tutorial-text"><strong>Свайп вниз</strong><br>Підкат під бар'єрами</div>
+        </div>
+        <div class="tutorial-item">
+            <div class="tutorial-icon">🪙🫘</div>
+            <div class="tutorial-text"><strong>Збирай монети та зерна</strong><br>Зерна = знижка в PerkUP!</div>
+        </div>
+        <button class="menu-btn btn-play" id="tutorial-start">🚀 ПОЧАТИ!</button>
+    </div>
+</div>
+
+<script>
+    // ===== КОНФІГУРАЦІЯ =====
+    const CONFIG = {
+        lanes: 3,
+        initialSpeed: 1.3,
+        maxSpeed: 3.0,
+        speedIncrement: 0.0003,
+        obstacleSpawnRate: 1800,
+        collectibleSpawnRate: 900,
+        coinValue: 10,
+        beanValue: 1,
+        scoreMultiplierThreshold: 500,
+        maxMultiplier: 5,
+        swipeThreshold: 30,
+        jumpDuration: 500,
+        slideDuration: 500
+    };
+
+    // ===== СТАН ГРИ =====
+    let gameState = {
+        isPlaying: false,
+        isPaused: false,
+        score: 0,
+        coins: 0,
+        beans: 0,
+        totalCoins: 0,
+        totalBeans: 0,
+        highScore: 0,
+        currentLane: 1,
+        speed: CONFIG.initialSpeed,
+        multiplier: 1,
+        isJumping: false,
+        isSliding: false,
+        obstacles: [],
+        collectibles: [],
+        lastObstacleTime: 0,
+        lastCollectibleTime: 0,
+        selectedCharacter: 'default',
+        selectedSkin: 'default',
+        ownedCharacters: ['default'],
+        ownedSkins: ['default']
+    };
+
+    // ===== ДАНІ МАГАЗИНУ =====
+    const SHOP_DATA = {
+        characters: [
+            { id: 'default', name: 'Перкі', price: 0, emoji: '🤖' },
+            { id: 'golden', name: 'Золотий', price: 500, emoji: '🥇' },
+            { id: 'neon', name: 'Неон', price: 1000, emoji: '💫' },
+            { id: 'cyber', name: 'Кібер', price: 2000, emoji: '🦾' }
+        ],
+        skins: [
+            { id: 'default', name: 'Класика', price: 0, color: '#FF6B35' },
+            { id: 'ocean', name: 'Океан', price: 300, color: '#4ECDC4' },
+            { id: 'sunset', name: 'Захід', price: 300, color: '#FF6B6B' },
+            { id: 'forest', name: 'Ліс', price: 500, color: '#2ECC71' },
+            { id: 'galaxy', name: 'Галактика', price: 800, color: '#9B59B6' }
+        ]
+    };
+
+    // ===== TELEGRAM WEB APP =====
+    let tg = window.Telegram?.WebApp;
+    let userName = 'Гравець';
+
+    function initTelegram() {
+        if (tg) {
+            tg.ready();
+            tg.expand();
+            if (tg.initDataUnsafe?.user) {
+                userName = tg.initDataUnsafe.user.first_name || 'Гравець';
+            }
+        }
+    }
+
+    // ===== DOM ЕЛЕМЕНТИ =====
+    const elements = {
+        mainMenu: document.getElementById('main-menu'),
+        gameContainer: document.getElementById('game-container'),
+        gameArea: document.getElementById('game-area'),
+        player: document.getElementById('player'),
+        pauseScreen: document.getElementById('pause-screen'),
+        gameOver: document.getElementById('game-over'),
+        shopScreen: document.getElementById('shop-screen'),
+        leaderboardScreen: document.getElementById('leaderboard-screen'),
+        tutorialOverlay: document.getElementById('tutorial-overlay'),
+        hudScore: document.getElementById('hud-score'),
+        hudCoins: document.getElementById('hud-coins'),
+        hudBeans: document.getElementById('hud-beans'),
+        hudMultiplier: document.getElementById('hud-multiplier'),
+        menuCoins: document.getElementById('menu-coins'),
+        menuBeans: document.getElementById('menu-beans'),
+        menuHighscore: document.getElementById('menu-highscore'),
+        goScore: document.getElementById('go-score'),
+        goCoins: document.getElementById('go-coins'),
+        goBeans: document.getElementById('go-beans'),
+        goHighscore: document.getElementById('go-highscore'),
+        shopCoins: document.getElementById('shop-coins'),
+        shopCharacters: document.getElementById('shop-characters'),
+        shopSkins: document.getElementById('shop-skins'),
+        leaderboardList: document.getElementById('leaderboard-list')
+    };
+
+    // ===== ЗБЕРЕЖЕННЯ/ЗАВАНТАЖЕННЯ =====
+    function saveGame() {
+        const saveData = {
+            totalCoins: gameState.totalCoins,
+            totalBeans: gameState.totalBeans,
+            highScore: gameState.highScore,
+            selectedCharacter: gameState.selectedCharacter,
+            selectedSkin: gameState.selectedSkin,
+            ownedCharacters: gameState.ownedCharacters,
+            ownedSkins: gameState.ownedSkins
+        };
+        localStorage.setItem('perkup_runner_save', JSON.stringify(saveData));
+    }
+
+    function loadGame() {
+        const saved = localStorage.getItem('perkup_runner_save');
+        if (saved) {
+            const data = JSON.parse(saved);
+            Object.assign(gameState, {
+                totalCoins: data.totalCoins || 0,
+                totalBeans: data.totalBeans || 0,
+                highScore: data.highScore || 0,
+                selectedCharacter: data.selectedCharacter || 'default',
+                selectedSkin: data.selectedSkin || 'default',
+                ownedCharacters: data.ownedCharacters || ['default'],
+                ownedSkins: data.ownedSkins || ['default']
+            });
+        }
+        updateMenuStats();
+    }
+
+    function updateMenuStats() {
+        elements.menuCoins.textContent = formatNumber(gameState.totalCoins);
+        elements.menuBeans.textContent = formatNumber(gameState.totalBeans);
+        elements.menuHighscore.textContent = formatNumber(gameState.highScore);
+    }
+
+    function formatNumber(num) {
+        if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+        if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+        return num.toString();
+    }
+
+    // ===== AUDIO =====
+    const AudioManager = {
+        context: null,
+        init() {
+            try {
+                this.context = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {}
+        },
+        playTone(freq, dur, type = 'sine') {
+            if (!this.context) return;
+            const osc = this.context.createOscillator();
+            const gain = this.context.createGain();
+            osc.connect(gain);
+            gain.connect(this.context.destination);
+            osc.frequency.value = freq;
+            osc.type = type;
+            gain.gain.setValueAtTime(0.2, this.context.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, this.context.currentTime + dur);
+            osc.start();
+            osc.stop(this.context.currentTime + dur);
+        },
+        playCoin() { this.playTone(880, 0.1); setTimeout(() => this.playTone(1100, 0.1), 50); },
+        playBean() { this.playTone(660, 0.12, 'triangle'); },
+        playJump() { this.playTone(440, 0.08, 'square'); },
+        playSlide() { this.playTone(220, 0.15, 'sawtooth'); },
+        playHit() { this.playTone(150, 0.25, 'sawtooth'); },
+        playSwipe() { this.playTone(330, 0.04); }
+    };
+
+    // ===== КЕРУВАННЯ =====
+    let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+
+    function initControls() {
+        elements.gameContainer.addEventListener('touchstart', e => {
+            const t = e.touches[0];
+            touchStartX = t.clientX;
+            touchStartY = t.clientY;
+            touchStartTime = Date.now();
+        }, { passive: true });
+
+        elements.gameContainer.addEventListener('touchend', e => {
+            if (!gameState.isPlaying || gameState.isPaused) return;
+            const t = e.changedTouches[0];
+            const dx = t.clientX - touchStartX;
+            const dy = t.clientY - touchStartY;
+            if (Date.now() - touchStartTime > 400) return;
+            const ax = Math.abs(dx), ay = Math.abs(dy);
+            if (ax > CONFIG.swipeThreshold || ay > CONFIG.swipeThreshold) {
+                if (ax > ay) { dx > 0 ? moveRight() : moveLeft(); }
+                else { dy < 0 ? jump() : slide(); }
+            }
+        }, { passive: true });
+
+        document.addEventListener('keydown', e => {
+            if (!gameState.isPlaying || gameState.isPaused) return;
+            switch(e.key) {
+                case 'ArrowLeft': case 'a': moveLeft(); break;
+                case 'ArrowRight': case 'd': moveRight(); break;
+                case 'ArrowUp': case 'w': case ' ': jump(); break;
+                case 'ArrowDown': case 's': slide(); break;
+            }
+        });
+    }
+
+    function moveLeft() {
+        if (gameState.currentLane > 0) {
+            gameState.currentLane--;
+            updatePlayerPosition();
+            AudioManager.playSwipe();
+        }
+    }
+
+    function moveRight() {
+        if (gameState.currentLane < CONFIG.lanes - 1) {
+            gameState.currentLane++;
+            updatePlayerPosition();
+            AudioManager.playSwipe();
+        }
+    }
+
+    function jump() {
+        if (gameState.isJumping || gameState.isSliding) return;
+        gameState.isJumping = true;
+        elements.player.classList.add('jumping');
+        AudioManager.playJump();
+        setTimeout(() => {
+            gameState.isJumping = false;
+            elements.player.classList.remove('jumping');
+        }, CONFIG.jumpDuration);
+    }
+
+    function slide() {
+        if (gameState.isSliding || gameState.isJumping) return;
+        gameState.isSliding = true;
+        elements.player.classList.add('sliding');
+        AudioManager.playSlide();
+        setTimeout(() => {
+            gameState.isSliding = false;
+            elements.player.classList.remove('sliding');
+        }, CONFIG.slideDuration);
+    }
+
+    function updatePlayerPosition() {
+        elements.player.className = `lane-${gameState.currentLane}`;
+        if (gameState.isJumping) elements.player.classList.add('jumping');
+        if (gameState.isSliding) elements.player.classList.add('sliding');
+    }
+
+    // ===== ГЕНЕРАЦІЯ ОБ'ЄКТІВ =====
+    function spawnObstacle() {
+        const now = Date.now();
+        const rate = Math.max(900, CONFIG.obstacleSpawnRate - gameState.score * 0.4);
+        if (now - gameState.lastObstacleTime < rate) return;
+        gameState.lastObstacleTime = now;
+
+        const lane = Math.floor(Math.random() * CONFIG.lanes);
+        const types = ['car', 'coffee-cup', 'barrier'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        createObstacle(lane, type);
+    }
+
+    function createObstacle(lane, type) {
+        const obs = document.createElement('div');
+        obs.className = `obstacle lane-${lane}`;
+        obs.dataset.lane = lane;
+        obs.dataset.type = type;
+
+        let html = '';
+        if (type === 'car') {
+            html = `<div class="car"><div class="car-body"><div class="car-window"></div><div class="car-light left"></div><div class="car-light right"></div></div></div>`;
+            obs.dataset.height = 'high';
+        } else if (type === 'coffee-cup') {
+            html = `<div class="coffee-cup-obstacle"><div class="cup-body"><div class="cup-steam">☁️</div></div></div>`;
+            obs.dataset.height = 'high';
+        } else {
+            html = `<div class="barrier"><div class="barrier-body"></div></div>`;
+            obs.dataset.height = 'low';
+        }
+        obs.innerHTML = html;
+
+        const dur = Math.max(0.7, 1.5 - (gameState.speed - CONFIG.initialSpeed) * 0.25);
+        obs.style.animationDuration = dur + 's';
+
+        elements.gameArea.appendChild(obs);
+        gameState.obstacles.push(obs);
+
+        obs.addEventListener('animationend', () => {
+            obs.remove();
+            gameState.obstacles = gameState.obstacles.filter(o => o !== obs);
+        });
+    }
+
+    function spawnCollectible() {
+        const now = Date.now();
+        const rate = Math.max(500, CONFIG.collectibleSpawnRate - gameState.score * 0.15);
+        if (now - gameState.lastCollectibleTime < rate) return;
+        gameState.lastCollectibleTime = now;
+
+        const lane = Math.floor(Math.random() * CONFIG.lanes);
+        const type = Math.random() < 0.75 ? 'coin' : 'bean';
+        createCollectible(lane, type);
+    }
+
+    function createCollectible(lane, type) {
+        const col = document.createElement('div');
+        col.className = `collectible lane-${lane}`;
+        col.dataset.lane = lane;
+        col.dataset.type = type;
+        col.innerHTML = type === 'coin' ? '<div class="coin">$</div>' : '<div class="coffee-bean"></div>';
+
+        const dur = Math.max(0.7, 1.5 - (gameState.speed - CONFIG.initialSpeed) * 0.25);
+        col.style.animationDuration = dur + 's';
+
+        elements.gameArea.appendChild(col);
+        gameState.collectibles.push(col);
+
+        col.addEventListener('animationend', () => {
+            col.remove();
+            gameState.collectibles = gameState.collectibles.filter(c => c !== col);
+        });
+    }
+
+    // ===== КОЛІЗІЇ =====
+    function checkCollisions() {
+        const pRect = elements.player.getBoundingClientRect();
+        const pLane = gameState.currentLane;
+
+        for (const obs of gameState.obstacles) {
+            if (parseInt(obs.dataset.lane) !== pLane) continue;
+            const oRect = obs.getBoundingClientRect();
+            if (isColliding(pRect, oRect)) {
+                const h = obs.dataset.height;
+                if (h === 'low' && gameState.isSliding) continue;
+                if (h === 'high' && gameState.isJumping) continue;
+                gameOver();
+                return;
+            }
+        }
+
+        for (const col of [...gameState.collectibles]) {
+            if (parseInt(col.dataset.lane) !== pLane) continue;
+            const cRect = col.getBoundingClientRect();
+            if (isColliding(pRect, cRect)) collectItem(col);
+        }
+    }
+
+    function isColliding(r1, r2) {
+        const m = 12;
+        return !(r1.right - m < r2.left + m || r1.left + m > r2.right - m || r1.bottom - m < r2.top + m || r1.top + m > r2.bottom - m);
+    }
+
+    function collectItem(col) {
+        const type = col.dataset.type;
+        const r = col.getBoundingClientRect();
+        showCollectEffect(r.left + r.width / 2, r.top, type);
+
+        if (type === 'coin') {
+            gameState.coins += CONFIG.coinValue * gameState.multiplier;
+            AudioManager.playCoin();
+        } else {
+            gameState.beans += CONFIG.beanValue;
+            AudioManager.playBean();
+        }
+        updateHUD();
+        col.remove();
+        gameState.collectibles = gameState.collectibles.filter(c => c !== col);
+    }
+
+    function showCollectEffect(x, y, type) {
+        const eff = document.createElement('div');
+        eff.className = `collect-effect ${type}`;
+        eff.textContent = type === 'coin' ? `+${CONFIG.coinValue * gameState.multiplier}` : '+1☕';
+        eff.style.left = x + 'px';
+        eff.style.top = y + 'px';
+        document.body.appendChild(eff);
+        eff.addEventListener('animationend', () => eff.remove());
+    }
+
+    // ===== ІГРОВИЙ ЦИКЛ =====
+    let gameLoop = null, scoreInterval = null;
+
+    function startGame() {
+        const hasPlayed = localStorage.getItem('perkup_runner_tutorial');
+        if (!hasPlayed) { showScreen('tutorial'); return; }
+
+        resetGame();
+        showScreen('game');
+        gameState.isPlaying = true;
+        gameLoop = requestAnimationFrame(update);
+
+        scoreInterval = setInterval(() => {
+            if (gameState.isPlaying && !gameState.isPaused) {
+                gameState.score += Math.floor(gameState.speed);
+                gameState.speed = Math.min(CONFIG.maxSpeed, gameState.speed + CONFIG.speedIncrement);
+                const newMult = Math.min(CONFIG.maxMultiplier, 1 + Math.floor(gameState.score / CONFIG.scoreMultiplierThreshold));
+                if (newMult !== gameState.multiplier) gameState.multiplier = newMult;
+                updateHUD();
+            }
+        }, 100);
+
+        if (AudioManager.context?.state === 'suspended') AudioManager.context.resume();
+    }
+
+    function resetGame() {
+        Object.assign(gameState, {
+            score: 0, coins: 0, beans: 0, currentLane: 1,
+            speed: CONFIG.initialSpeed, multiplier: 1,
+            isJumping: false, isSliding: false,
+            lastObstacleTime: 0, lastCollectibleTime: 0
+        });
+        gameState.obstacles.forEach(o => o.remove());
+        gameState.collectibles.forEach(c => c.remove());
+        gameState.obstacles = [];
+        gameState.collectibles = [];
+        updatePlayerPosition();
+        updateHUD();
+    }
+
+    function update() {
+        if (!gameState.isPlaying || gameState.isPaused) {
+            gameLoop = requestAnimationFrame(update);
+            return;
+        }
+        spawnObstacle();
+        spawnCollectible();
+        checkCollisions();
+        gameLoop = requestAnimationFrame(update);
+    }
+
+    function updateHUD() {
+        elements.hudScore.textContent = formatNumber(gameState.score);
+        elements.hudCoins.textContent = formatNumber(gameState.coins);
+        elements.hudBeans.textContent = gameState.beans;
+        elements.hudMultiplier.textContent = `x${gameState.multiplier}`;
+    }
+
+    function pauseGame() {
+        if (!gameState.isPlaying) return;
+        gameState.isPaused = true;
+        showScreen('pause');
+    }
+
+    function resumeGame() {
+        gameState.isPaused = false;
+        showScreen('game');
+    }
+
+    function gameOver() {
+        gameState.isPlaying = false;
+        cancelAnimationFrame(gameLoop);
+        clearInterval(scoreInterval);
+        AudioManager.playHit();
+
+        gameState.totalCoins += gameState.coins;
+        gameState.totalBeans += gameState.beans;
+        const isNew = gameState.score > gameState.highScore;
+        if (isNew) gameState.highScore = gameState.score;
+        saveGame();
+
+        elements.goScore.textContent = formatNumber(gameState.score);
+        elements.goCoins.textContent = formatNumber(gameState.coins);
+        elements.goBeans.textContent = gameState.beans;
+        elements.goHighscore.innerHTML = formatNumber(gameState.highScore) + (isNew ? '<span class="new-record-badge">НОВИЙ!</span>' : '');
+        if (isNew) elements.goHighscore.classList.add('new-record');
+        else elements.goHighscore.classList.remove('new-record');
+
+        showScreen('gameover');
+    }
+
+    // ===== ЕКРАНИ =====
+    function showScreen(screen) {
+        [elements.mainMenu, elements.gameContainer, elements.pauseScreen, elements.gameOver, elements.shopScreen, elements.leaderboardScreen, elements.tutorialOverlay].forEach(el => el.style.display = 'none');
+
+        switch(screen) {
+            case 'menu': elements.mainMenu.style.display = 'flex'; updateMenuStats(); break;
+            case 'game': elements.gameContainer.style.display = 'block'; break;
+            case 'pause': elements.gameContainer.style.display = 'block'; elements.pauseScreen.style.display = 'flex'; break;
+            case 'gameover': elements.gameContainer.style.display = 'block'; elements.gameOver.style.display = 'flex'; break;
+            case 'shop': elements.shopScreen.style.display = 'flex'; renderShop(); break;
+            case 'leaderboard': elements.leaderboardScreen.style.display = 'flex'; renderLeaderboard(); break;
+            case 'tutorial': elements.tutorialOverlay.style.display = 'flex'; break;
+        }
+    }
+
+    // ===== МАГАЗИН =====
+    function renderShop() {
+        elements.shopCoins.textContent = formatNumber(gameState.totalCoins);
+
+        elements.shopCharacters.innerHTML = SHOP_DATA.characters.map(c => {
+            const owned = gameState.ownedCharacters.includes(c.id);
+            const sel = gameState.selectedCharacter === c.id;
+            return `<div class="shop-item ${sel ? 'selected' : ''} ${!owned && c.price > gameState.totalCoins ? 'locked' : ''}" data-type="character" data-id="${c.id}" data-price="${c.price}">
+                <div class="shop-item-preview" style="font-size:2.5rem;">${c.emoji}</div>
+                <div class="shop-item-name">${c.name}</div>
+                ${owned ? `<div class="shop-item-owned">${sel ? '✓ Обрано' : 'Обрати'}</div>` : `<div class="shop-item-price">🪙 ${c.price}</div>`}
+            </div>`;
+        }).join('');
+
+        elements.shopSkins.innerHTML = SHOP_DATA.skins.map(s => {
+            const owned = gameState.ownedSkins.includes(s.id);
+            const sel = gameState.selectedSkin === s.id;
+            return `<div class="shop-item ${sel ? 'selected' : ''} ${!owned && s.price > gameState.totalCoins ? 'locked' : ''}" data-type="skin" data-id="${s.id}" data-price="${s.price}">
+                <div class="shop-item-preview"><div style="width:45px;height:45px;background:${s.color};border-radius:50%;"></div></div>
+                <div class="shop-item-name">${s.name}</div>
+                ${owned ? `<div class="shop-item-owned">${sel ? '✓ Обрано' : 'Обрати'}</div>` : `<div class="shop-item-price">🪙 ${s.price}</div>`}
+            </div>`;
+        }).join('');
+
+        document.querySelectorAll('.shop-item').forEach(item => item.addEventListener('click', () => handleShopClick(item)));
+    }
+
+    function handleShopClick(item) {
+        const type = item.dataset.type, id = item.dataset.id, price = parseInt(item.dataset.price);
+        if (type === 'character') {
+            if (gameState.ownedCharacters.includes(id)) gameState.selectedCharacter = id;
+            else if (gameState.totalCoins >= price) { gameState.totalCoins -= price; gameState.ownedCharacters.push(id); gameState.selectedCharacter = id; AudioManager.playCoin(); }
+        } else if (type === 'skin') {
+            if (gameState.ownedSkins.includes(id)) gameState.selectedSkin = id;
+            else if (gameState.totalCoins >= price) { gameState.totalCoins -= price; gameState.ownedSkins.push(id); gameState.selectedSkin = id; AudioManager.playCoin(); }
+        }
+        saveGame();
+        renderShop();
+    }
+
+    // ===== ЛІДЕРБОРД =====
+    function renderLeaderboard() {
+        const demo = [
+            { name: 'КавоМан', score: 15420, avatar: '🤖' },
+            { name: 'Бровар4анин', score: 12350, avatar: '🦾' },
+            { name: 'PerkLover', score: 10280, avatar: '☕' },
+            { name: 'SpeedRunner', score: 9870, avatar: '🏃' },
+            { name: 'CoffeeBean', score: 8540, avatar: '🫘' },
+            { name: 'Турбо', score: 7230, avatar: '⚡' },
+            { name: 'Новачок', score: 5120, avatar: '🌟' }
+        ];
+        let leaders = [...demo];
+        if (gameState.highScore > 0) {
+            leaders.push({ name: userName, score: gameState.highScore, avatar: '🤖', isCurrentUser: true });
+            leaders.sort((a, b) => b.score - a.score);
+        }
+
+        elements.leaderboardList.innerHTML = leaders.slice(0, 10).map((l, i) => {
+            let rc = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+            return `<div class="leaderboard-item ${l.isCurrentUser ? 'current-user' : ''}">
+                <div class="leaderboard-rank ${rc}">${i + 1}</div>
+                <div class="leaderboard-avatar">${l.avatar}</div>
+                <div class="leaderboard-info">
+                    <div class="leaderboard-name">${l.name}</div>
+                    <div class="leaderboard-score">${formatNumber(l.score)} м</div>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    // ===== ОБРОБНИКИ ПОДІЙ =====
+    function initEventListeners() {
+        document.getElementById('play-btn').addEventListener('click', () => { AudioManager.init(); startGame(); });
+        document.getElementById('shop-btn').addEventListener('click', () => showScreen('shop'));
+        document.getElementById('leaderboard-btn').addEventListener('click', () => showScreen('leaderboard'));
+        document.getElementById('pause-btn').addEventListener('click', pauseGame);
+        document.getElementById('resume-btn').addEventListener('click', resumeGame);
+        document.getElementById('pause-menu-btn').addEventListener('click', () => { gameState.isPlaying = false; cancelAnimationFrame(gameLoop); clearInterval(scoreInterval); showScreen('menu'); });
+        document.getElementById('retry-btn').addEventListener('click', startGame);
+        document.getElementById('go-menu-btn').addEventListener('click', () => showScreen('menu'));
+        document.getElementById('shop-close').addEventListener('click', () => showScreen('menu'));
+        document.getElementById('leaderboard-close').addEventListener('click', () => showScreen('menu'));
+        document.getElementById('tutorial-start').addEventListener('click', () => {
+            localStorage.setItem('perkup_runner_tutorial', 'true');
+            resetGame();
+            showScreen('game');
+            gameState.isPlaying = true;
+            gameLoop = requestAnimationFrame(update);
+            scoreInterval = setInterval(() => {
+                if (gameState.isPlaying && !gameState.isPaused) {
+                    gameState.score += Math.floor(gameState.speed);
+                    gameState.speed = Math.min(CONFIG.maxSpeed, gameState.speed + CONFIG.speedIncrement);
+                    const newMult = Math.min(CONFIG.maxMultiplier, 1 + Math.floor(gameState.score / CONFIG.scoreMultiplierThreshold));
+                    if (newMult !== gameState.multiplier) gameState.multiplier = newMult;
+                    updateHUD();
+                }
+            }, 100);
+        });
+    }
+
+    // ===== ІНІЦІАЛІЗАЦІЯ =====
+    function init() {
+        initTelegram();
+        loadGame();
+        initControls();
+        initEventListeners();
+        showScreen('menu');
+
+        if (tg?.HapticFeedback) {
+            const origCoin = AudioManager.playCoin.bind(AudioManager);
+            AudioManager.playCoin = function() { origCoin(); tg.HapticFeedback.impactOccurred('light'); };
+            const origHit = AudioManager.playHit.bind(AudioManager);
+            AudioManager.playHit = function() { origHit(); tg.HapticFeedback.notificationOccurred('error'); };
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', init);
+</script>
+```
+
+</body>
+</html>
