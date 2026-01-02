@@ -1,0 +1,43 @@
+{
+  "name": "perkup-runner",
+  "version": "1.0.0",
+  "description": "PerkUP Runner - Telegram Mini App Game",
+  "main": "backend/src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "dev": "nodemon backend/src/server.js",
+    "bot": "node backend/src/bot.js",
+    "dev:bot": "nodemon backend/src/bot.js",
+    "db:migrate": "node backend/src/utils/migrate.js",
+    "lint": "eslint backend/src"
+  },
+  "keywords": [
+    "telegram",
+    "mini-app",
+    "game",
+    "runner",
+    "perkup"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3",
+    "node-telegram-bot-api": "^0.64.0",
+    "express-validator": "^7.0.1",
+    "helmet": "^7.1.0",
+    "express-rate-limit": "^7.1.5",
+    "compression": "^1.7.4",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "eslint": "^8.56.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
